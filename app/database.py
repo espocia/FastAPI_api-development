@@ -3,7 +3,10 @@ from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 app = FastAPI()
 
@@ -16,20 +19,20 @@ class Post(BaseModel):
 
 
 class DatabaseCredentials:
-    def __init__(self, host, port, database, user, password):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.user = user
-        self.password = password
+    def __init__(self, db_host, db_port, db_database, db_user, db_password):
+        self.host = db_host
+        self.port = db_port
+        self.database = db_database
+        self.user = db_user
+        self.password = db_password
 
 
 db_credentials = DatabaseCredentials(
-    host="my-postgres-db.cdnlaegejvgw.us-east-1.rds.amazonaws.com",
-    port=5432,
-    database="fastapi",
-    user="postgres",
-    password="josh2000"  # Replace with your actual password
+    db_host=os.getenv("DB_HOST"),
+    db_port=os.getenv("DB_PORT"),
+    db_database=os.getenv("DB_DATABASE"),
+    db_user=os.getenv("DB_USER"),
+    db_password=os.getenv("DB_PASSWORD")
 )
 
 while True:
