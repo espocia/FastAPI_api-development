@@ -10,6 +10,8 @@ load_dotenv()
 
 app = FastAPI()
 
+# hello from development
+
 
 class Post(BaseModel):
     """ Data schame for post entities """
