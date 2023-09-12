@@ -1,23 +1,20 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+# Database Communication imports ---------
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import time
+
+# System Related imports -----------------
 import os
+import time
 from dotenv import load_dotenv
 
+# FastAPI modules ------------------------
+from fastapi import HTTPException
+
+# Local files imports --------------------
+from app.basemodel import Post
+from app.basemodel import AddressDegree, PersonalInfo
+
 load_dotenv()
-
-app = FastAPI()
-
-# hello from development
-
-
-class Post(BaseModel):
-    """ Data schame for post entities """
-    title: str
-    content: str
-    published: bool = True
 
 
 class DatabaseCredentials:
@@ -37,7 +34,36 @@ db_credentials = DatabaseCredentials(
     db_password=os.getenv("DB_PASSWORD")
 )
 
+# Define the SQL statements to create tables
+create_personal_info_table_sql = """
+CREATE TABLE IF NOT EXISTS personal_info (
+    id serial PRIMARY KEY,
+    firstname VARCHAR(255),
+    lastname VARCHAR(255),
+    gender VARCHAR(255),
+    birthdate VARCHAR(255),
+    phone VARCHAR(255),
+    email VARCHAR(255) UNIQUE
+);
+"""
+
+create_address_degree_table_sql = """
+CREATE TABLE IF NOT EXISTS address_degree (
+    id serial PRIMARY KEY,
+    zipcode VARCHAR(255),
+    stateProvince VARCHAR(255),
+    townCity VARCHAR(255),
+    degree VARCHAR(255),
+    course VARCHAR(255),
+    program VARCHAR(255),
+    institution VARCHAR(255),
+    personal_info_id INT, -- Foreign key reference
+    FOREIGN KEY (personal_info_id) REFERENCES personal_info (id)
+);
+"""
 while True:
+    cursor = None
+    connection = None
     try:
         connection = psycopg2.connect(
             host=db_credentials.host,
@@ -48,6 +74,12 @@ while True:
         )
         cursor = connection.cursor()
         print('Database connection was successfully')
+
+        if cursor:
+            cursor.execute(create_personal_info_table_sql)
+            cursor.execute(create_address_degree_table_sql)
+            connection.commit()
+
         break
     except Exception as e:
         print('Connecting to database failed')
@@ -71,6 +103,26 @@ class PostManager:
             new_post = self.cursor.fetchone()
             self.connection.commit()
             return new_post
+        except Exception as error:
+            raise error
+
+    def create_post_personal_info(self, post: PersonalInfo):
+        """ Creates new entries for personal_info table"""
+        sql = """INSERT INTO personal_info (
+                    firstname,
+                    lastname,
+                    gender,
+                    birthdate,
+                    phone,
+                    email
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING *"""
+        try:
+            self.cursor.execute(
+                sql, (post.firstname, post.lastname, post.gender, post.birthdate, post.phone, post.email))
+            new_personal_info = self.cursor.fetchone()
+            self.connection.commit()
+            return new_personal_info
         except Exception as error:
             raise error
 
@@ -124,54 +176,3 @@ class PostManager:
             raise HTTPException(status_code=404, detail="Post not found")
         except Exception as error:
             raise error
-
-
-post_manager = PostManager()
-
-
-@app.get("/")
-async def root():
-    """
-    Welcome endpoint
-    """
-    return {"message": "Welcome to my API"}
-
-
-@app.get("/posts")
-async def get_posts():
-    """
-    Get all posts
-    """
-    return {"data": post_manager.get_all_posts()}
-
-
-@app.get("/post/{target_id}")
-async def get_post(target_id: int):
-    """
-    Get a specific post by ID
-    """
-    return {"data": post_manager.get_post(target_id)}
-
-
-@app.post("/post")
-async def create_post(data: Post):
-    """
-    Create a new post
-    """
-    return {"data": post_manager.create_post(data)}
-
-
-@app.put("/post/{target_id}")
-async def update_post(target_id: int, data: Post):
-    """
-    Update existing post
-    """
-    return {"data": post_manager.update_post(target_id, data)}
-
-
-@app.delete("/post/{target_id}")
-async def delete_post(target_id: int):
-    """
-    Delete a post by ID
-    """
-    return {"data": post_manager.delete_post(target_id)}

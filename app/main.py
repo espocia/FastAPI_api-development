@@ -1,55 +1,11 @@
-from typing import Optional
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+#  Local files imports --------------------
+from app.database import PostManager
+from app.basemodel import PersonalInfo, Post
 
+# FastAPI import -------------------------
+from fastapi import FastAPI
 
-app = FastAPI()
-
-
-class Post(BaseModel):
-    """ Data schame for post entities """
-    title: str
-    content: str
-    published: bool = True
-    rating: Optional[int] = None
-
-
-class PostManager:
-    """ Post Managers class for handeling queries """
-
-    def __init__(self) -> None:
-        self.posts = []
-        self.id = 0
-
-    def create_post(self, post: Post):
-        """ creates new post"""
-        post_dict = post.dict()
-        post_dict['id'] = self.id
-        self.id += 1
-        self.posts.append(post_dict)
-        return post_dict
-
-    def delete_post(self, target_id):
-        """ deletes specific post with id """
-        for post in self.posts:
-            if target_id == post["id"]:
-                self.posts.remove(post)
-                return {"message": "post deleted successfully"}
-
-            raise HTTPException(status_code=404, detail="Post not found")
-
-    def get_post(self, target_id):
-        """ gets specific post with id """
-        for post in self.posts:
-            if post['id'] == target_id:
-                return post
-
-            raise HTTPException(status_code=404, detail="Post not found")
-
-    def get_all_posts(self):
-        """ gets all post"""
-        return self.posts
-
+app = FastAPI(title="GUTZ online application services  API")
 
 post_manager = PostManager()
 
@@ -70,7 +26,7 @@ async def get_posts():
     return {"data": post_manager.get_all_posts()}
 
 
-@app.get("/posts/{target_id}")
+@app.get("/post/{target_id}")
 async def get_post(target_id: int):
     """
     Get a specific post by ID
@@ -78,15 +34,23 @@ async def get_post(target_id: int):
     return {"data": post_manager.get_post(target_id)}
 
 
-@app.post("/posts")
-async def create_post(data: Post):
+@app.post("/post")
+async def create_post(data: PersonalInfo):
     """
     Create a new post
     """
-    return {"data": post_manager.create_post(data)}
+    return {"data": post_manager.create_post_personal_info(data)}
 
 
-@app.delete("/posts/{target_id}")
+@app.put("/post/{target_id}")
+async def update_post(target_id: int, data: Post):
+    """
+    Update existing post
+    """
+    return {"data": post_manager.update_post(target_id, data)}
+
+
+@app.delete("/post/{target_id}")
 async def delete_post(target_id: int):
     """
     Delete a post by ID
