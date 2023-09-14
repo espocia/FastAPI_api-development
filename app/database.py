@@ -126,11 +126,12 @@ class PostManager:
                     phone,
                     email
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING *"""
+                    VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id"""  # Changed RETURNING clause
         try:
             self.cursor.execute(
                 sql, (status_id, post.firstname, post.lastname, post.gender, post.birthdate, post.phone, post.email))
-            new_personal_info_id = self.cursor.fetchone()[0]
+            # Changed how id is accessed
+            new_personal_info_id = self.cursor.fetchone()['id']
             self.connection.commit()
             return new_personal_info_id
         except Exception as error:
@@ -139,6 +140,7 @@ class PostManager:
     def create_post_address_degree(self, personal_info_id, post: AddressDegree):
         """ Creates new entries for address_degree """
         sql = """INSERT INTO address_degree(
+                    personal_info_id,
                     zipcode,
                     stateProvince,
                     townCity,
@@ -147,43 +149,29 @@ class PostManager:
                     program,
                     institution
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *"""
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *"""
         try:
-            self.cursor.execute(sql, (personal_info_id, post.zipcode, post.stateProvince,
-                                post.townCity, post.degree, post.course, post.program, post.institution))
+            self.cursor.execute(
+                sql, (personal_info_id, post.zipcode, post.stateProvince, post.townCity, post.degree, post.course, post.program, post.institution))
             self.connection.commit()
-            return self.cursor.fetchall()
+            return self.cursor.fetchone()
         except Exception as e:
             raise e
 
     def create_post_status(self, post: Status):
         """ Creates new entries for status"""
-        sql = """INSERT INTO statuses (%s) VALUES (%s) RETURNING *"""
+        sql = """INSERT INTO statuses (status) VALUES (%s) RETURNING id"""  # Changed RETURNING clause
 
         try:
             self.cursor.execute(sql, (post.status,))
             self.connection.commit()
-            return self.cursor.fetchone()[0]
+            row = self.cursor.fetchone()
+            if row:
+                return row['id']  # Changed how id is accessed
+            else:
+                return None
         except Exception as e:
             raise e
-
-    def create_entries(self, personal_info: PersonalInfo, address_degree: AddressDegree, status: Status):
-
-        sql = """SELECT * FROM personal_info"""
-
-        try:
-            self.cursor.execute(sql)
-            personal_info_data = self.cursor.fetchone()
-        except Exception as e:
-            raise e
-
-        status_id = self.create_post_status(status)
-        personal_info_id = self.create_post_personal_info(
-            status_id, personal_info)
-        address_degree_data = self.create_post_address_degree(
-            personal_info_id, address_degree)
-
-        return {"personal_info": personal_info_data, "address_degree": address_degree_data}
 
     def delete_post(self, target_id):
         """ Delete entries in the database with specified id """

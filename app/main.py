@@ -35,11 +35,14 @@ async def get_post(target_id: int):
 
 
 @app.post("/post")
-async def create_post(personal_info: PersonalInfo, address_degreee: AddressDegree, status: Status):
+async def create_post(personal_info: PersonalInfo, address_degree: AddressDegree, status: Status):
     """
     Create a new post
     """
-    return {"data": post_manager.create_entries(personal_info, address_degreee, status)}
+    status_id = post_manager.create_post_status(status)
+    personal_info_id = post_manager.create_post_personal_info(
+        status_id, personal_info)
+    return {"data": post_manager.create_post_address_degree(personal_info_id, address_degree)}
 
 
 @app.put("/post/{target_id}")
