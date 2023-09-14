@@ -187,7 +187,32 @@ class PostManager:
 
     def get_post(self, target_id):
         """ Gets specific postt in the database with specified id """
-        sql = """SELECT * FROM personal_info WHERE id = %s"""
+        sql = """
+                SELECT
+                    s.id AS status_id,
+                    s.status AS status,
+                    pi.id AS personal_info_id,
+                    pi.firstname AS firstname,
+                    pi.lastname AS lastname,
+                    pi.gender AS gender,
+                    pi.birthdate AS birthdate,
+                    pi.phone AS phone,
+                    pi.email AS email,
+                    ad.id AS address_degree_id,
+                    ad.zipcode AS zipcode,
+                    ad.stateProvince AS stateProvince,
+                    ad.townCity AS townCity,
+                    ad.degree AS degree,
+                    ad.course AS course,
+                    ad.program AS program,
+                    ad.institution AS institution
+                FROM
+                    statuses AS s
+                INNER JOIN
+                    personal_info AS pi ON s.id = pi.status_id
+                INNER JOIN
+                    address_degree AS ad ON pi.id = ad.personal_info_id;
+        """
         try:
             self.cursor.execute(sql, (target_id,))
             post = self.cursor.fetchone()
@@ -199,27 +224,53 @@ class PostManager:
 
     def get_all_posts(self):
         """ Get all post in the database"""
-        sql = """SELECT * FROM personal_info"""
+        sql = """
+                SELECT
+                    s.id AS status_id,
+                    s.status AS status,
+                    pi.id AS personal_info_id,
+                    pi.firstname AS firstname,
+                    pi.lastname AS lastname,
+                    pi.gender AS gender,
+                    pi.birthdate AS birthdate,
+                    pi.phone AS phone,
+                    pi.email AS email,
+                    ad.id AS address_degree_id,
+                    ad.zipcode AS zipcode,
+                    ad.stateProvince AS stateProvince,
+                    ad.townCity AS townCity,
+                    ad.degree AS degree,
+                    ad.course AS course,
+                    ad.program AS program,
+                    ad.institution AS institution
+                FROM
+                    statuses AS s
+                INNER JOIN
+                    personal_info AS pi ON s.id = pi.status_id
+                INNER JOIN
+                    address_degree AS ad ON pi.id = ad.personal_info_id;
+        """
         try:
             self.cursor.execute(sql)
-            posts = self.cursor.fetchall()
-            return posts
+            data = self.cursor.fetchall()
+
+            return data
         except Exception as error:
             raise error
 
-    def update_post(self, target_id, post: PersonalInfo):
+    def update_status(self, target_id, status: Status):
         """ Update exisiting post with specified id and schema"""
         try:
-            get_post_sql = """SELECT id FROM posts WHERE id = %s"""
-            self.cursor.execute(get_post_sql, (target_id,))
-            existing_post = self.cursor.fetchone()
-            if existing_post:
-                update_sql = """UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *"""
+            get_status_sql = """SELECT id FROM statuses WHERE id = %s"""
+            self.cursor.execute(get_status_sql, (target_id,))
+            existing_status = self.cursor.fetchone()
+            if existing_status:
+                update_sql = """UPDATE statuses SET status= %s WHERE id = %s RETURNING *"""
                 self.cursor.execute(
-                    update_sql, (post.title, post.content, post.published, target_id))
-                updated_post = self.cursor.fetchone()
+                    update_sql, (status.status, target_id))
+                updated_status = self.cursor.fetchone()
                 self.connection.commit()
-                return updated_post
-            raise HTTPException(status_code=404, detail="Post not found")
+                return updated_status
+            raise HTTPException(status_code=404, detail="Status not found")
         except Exception as error:
             raise error

@@ -46,11 +46,11 @@ async def create_post(personal_info: PersonalInfo, address_degree: AddressDegree
 
 
 @app.put("/post/{target_id}")
-async def update_post(target_id: int, data: Post):
+async def update_post(target_id: int, status: Status):
     """
     Update existing post
     """
-    return {"data": post_manager.update_post(target_id, data)}
+    return {"data": post_manager.update_status(target_id, status)}
 
 
 @app.delete("/post/{target_id}")
