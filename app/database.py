@@ -128,7 +128,7 @@ class PostManager:
 
     def delete_post(self, target_id):
         """ Delete entries in the database with specified id """
-        sql = """DELETE FROM posts WHERE id = %s RETURNING *"""
+        sql = """DELETE FROM personal_info WHERE id = %s RETURNING *"""
         try:
             self.cursor.execute(sql, (target_id,))
             deleted_post = self.cursor.fetchone()
@@ -140,7 +140,7 @@ class PostManager:
 
     def get_post(self, target_id):
         """ Gets specific postt in the database with specified id """
-        sql = """SELECT * FROM posts WHERE id = %s"""
+        sql = """SELECT * FROM personal_info WHERE id = %s"""
         try:
             self.cursor.execute(sql, (target_id,))
             post = self.cursor.fetchone()
@@ -152,7 +152,7 @@ class PostManager:
 
     def get_all_posts(self):
         """ Get all post in the database"""
-        sql = """SELECT * FROM posts"""
+        sql = """SELECT * FROM personal_info"""
         try:
             self.cursor.execute(sql)
             posts = self.cursor.fetchall()
