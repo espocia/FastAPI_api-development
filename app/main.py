@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="GUTZ online application services  API")
 
 origins = [
-    "https://dulcet-melba-efe48a.netlify.app",
+    "*",
     # Add more origins if needed
 ]
 
