@@ -4,9 +4,17 @@ from app.basemodel import AddressDegree, PersonalInfo, Post, Status
 
 # FastAPI import -------------------------
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="GUTZ online application services  API")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://dulcet-melba-efe48a.netlify.app"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 post_manager = PostManager()
 
 
