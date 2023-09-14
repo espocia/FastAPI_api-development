@@ -1,6 +1,6 @@
 #  Local files imports --------------------
 from app.database import PostManager
-from app.basemodel import PersonalInfo, Post
+from app.basemodel import AddressDegree, PersonalInfo, Post, Status
 
 # FastAPI import -------------------------
 from fastapi import FastAPI
@@ -35,11 +35,11 @@ async def get_post(target_id: int):
 
 
 @app.post("/post")
-async def create_post(data: PersonalInfo):
+async def create_post(personal_info: PersonalInfo, address_degreee: AddressDegree, status: Status):
     """
     Create a new post
     """
-    return {"data": post_manager.create_post_personal_info(data)}
+    return {"data": post_manager.create_entries(personal_info, address_degreee, status)}
 
 
 @app.put("/post/{target_id}")

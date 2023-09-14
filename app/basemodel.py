@@ -25,3 +25,7 @@ class AddressDegree(BaseModel):
     course: str
     program: str
     institution: str
+
+
+class Status(BaseModel):
+    status: str = "new"
