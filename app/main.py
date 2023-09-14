@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="GUTZ online application services  API")
 
 origins = [
-    "*",
+    "https://cors-everywhere.herokuapp.com/",
     # Add more origins if needed
 ]
 
