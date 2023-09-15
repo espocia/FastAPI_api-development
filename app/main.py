@@ -1,26 +1,34 @@
 #  Local files imports --------------------
 from app.database import PostManager
-from app.basemodel import AddressDegree, PersonalInfo, Post, Status
+from app.basemodel import AddressDegree, PersonalInfo,  Status
 
 # FastAPI import -------------------------
-from fastapi import FastAPI
+from typing import Callable
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="GUTZ online application services  API")
 
-origins = [
-    "http://localhost:5173",  # Replace with your React app's URL
-]
+post_manager = PostManager()
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # You can specify specific HTTP methods if needed
-    allow_headers=["*"],  # You can specify specific HTTP headers if needed
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-post_manager = PostManager()
+# Add a middleware to handle mixed content
+
+
+@app.middleware("http")
+async def handle_mixed_content(request: Request, call_next: Callable) -> Response:
+    response = await call_next(request)
+    if request.url.startswith("http://"):
+        response.headers["Content-Security-Policy"] = "upgrade-insecure-requests"
+    return response
 
 
 @app.get("/")
