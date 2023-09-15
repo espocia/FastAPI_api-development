@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="GUTZ online application services  API")
 
 origins = [
-    "https://dulcet-melba-efe48a.netlify.app/",
+    "*",
     # Add more origins if needed.
 ]
 
@@ -20,10 +20,10 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     # Allow only GET, HEAD, and POST methods.
-    allow_methods=["GET", "HEAD", "POST"],
+    allow_methods=["*"],
     # Specify required headers.
-    allow_headers=["Origin", "Content-Type", "Accept"],
-    expose_headers=["Access-Control-Allow-Origin"],  # Expose the CORS header.
+    allow_headers=["*"],
+    expose_headers=["*"],  # Expose the CORS header.
 )
 
 post_manager = PostManager()
