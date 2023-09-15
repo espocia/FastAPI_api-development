@@ -3,8 +3,7 @@ from app.database import PostManager
 from app.basemodel import AddressDegree, PersonalInfo,  Status
 
 # FastAPI import -------------------------
-from typing import Callable
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="GUTZ online application services  API")
@@ -21,14 +20,6 @@ app.add_middleware(
 )
 
 # Add a middleware to handle mixed content
-
-
-@app.middleware("http")
-async def handle_mixed_content(request: Request, call_next: Callable) -> Response:
-    response = await call_next(request)
-    if request.url.startswith("http://"):
-        response.headers["Content-Security-Policy"] = "upgrade-insecure-requests"
-    return response
 
 
 @app.get("/")
