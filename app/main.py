@@ -9,21 +9,15 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="GUTZ online application services  API")
 
 origins = [
-    "*",
-    # Add more origins if needed.
+    "http://localhost:5173",  # Replace with your React app's URL
 ]
 
-# Configure CORS middleware with the allowed origins, credentials, methods, headers,
-# and expose the 'Access-Control-Allow-Origin' header.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    # Allow only GET, HEAD, and POST methods.
-    allow_methods=["*"],
-    # Specify required headers.
-    allow_headers=["*"],
-    expose_headers=["*"],  # Expose the CORS header.
+    allow_methods=["*"],  # You can specify specific HTTP methods if needed
+    allow_headers=["*"],  # You can specify specific HTTP headers if needed
 )
 
 post_manager = PostManager()
