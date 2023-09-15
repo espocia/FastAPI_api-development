@@ -13,10 +13,11 @@ post_manager = PostManager()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    # Specify the origin(s) you want to allow
+    allow_origins=["https://dulcet-melba-efe48a.netlify.app"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # You can specify the allowed HTTP methods
+    allow_headers=["*"],  # You can specify the allowed headers
 )
 
 # Add a middleware to handle mixed content
