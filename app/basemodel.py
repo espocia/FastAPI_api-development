@@ -22,8 +22,6 @@ class AddressDegree(BaseModel):
     stateProvince: str
     townCity: str
     degree: str
-    course: str
-    program: str
     institution: str
 
 

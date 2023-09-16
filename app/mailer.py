@@ -17,7 +17,7 @@ def confim_application(recipient, recipient_name):
 
     smtp_connection.login(smtp_username, smtp_password)
 
-    email_subject = 'Subject'
+    email_subject = 'Thank you for applying.'
     email_body = f"Hello {recipient_name},\n\nThank you for applying to Gutz. We have received your application and will review it as soon as possible. If you have any questions or need further assistance, please don't hesitate to contact us.\n\nBest regards,\nThe Gutz Team"
 
     msg = MIMEMultipart()

@@ -64,8 +64,6 @@ CREATE TABLE IF NOT EXISTS address_degree (
     stateProvince VARCHAR(255),
     townCity VARCHAR(255),
     degree VARCHAR(255),
-    course VARCHAR(255),
-    program VARCHAR(255),
     institution VARCHAR(255)
 );
 """
@@ -145,14 +143,12 @@ class PostManager:
                     stateProvince,
                     townCity,
                     degree,
-                    course,
-                    program,
                     institution
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *"""
+                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING *"""
         try:
             self.cursor.execute(
-                sql, (personal_info_id, post.zipcode, post.stateProvince, post.townCity, post.degree, post.course, post.program, post.institution))
+                sql, (personal_info_id, post.zipcode, post.stateProvince, post.townCity, post.degree, post.institution))
             self.connection.commit()
             return self.cursor.fetchone()
         except Exception as e:
@@ -203,8 +199,6 @@ class PostManager:
                     ad.stateProvince AS stateProvince,
                     ad.townCity AS townCity,
                     ad.degree AS degree,
-                    ad.course AS course,
-                    ad.program AS program,
                     ad.institution AS institution
                 FROM
                     statuses AS s
@@ -240,8 +234,6 @@ class PostManager:
                     ad.stateProvince AS stateProvince,
                     ad.townCity AS townCity,
                     ad.degree AS degree,
-                    ad.course AS course,
-                    ad.program AS program,
                     ad.institution AS institution
                 FROM
                     statuses AS s
