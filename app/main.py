@@ -3,8 +3,11 @@ from app.database import PostManager
 from app.basemodel import AddressDegree, PersonalInfo,  Status
 
 # FastAPI import -------------------------
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+
+# feature --------------------------------
+from app.mailer import confim_application
 
 app = FastAPI(title="GUTZ online application services  API")
 
@@ -52,10 +55,16 @@ async def create_post(personal_info: PersonalInfo, address_degree: AddressDegree
     """
     Create a new post
     """
-    status_id = post_manager.create_post_status(status)
-    personal_info_id = post_manager.create_post_personal_info(
-        status_id, personal_info)
-    return {"data": post_manager.create_post_address_degree(personal_info_id, address_degree)}
+    try:
+        status_id = post_manager.create_post_status(status)
+        personal_info_id = post_manager.create_post_personal_info(
+            status_id, personal_info)
+        post_manager.create_post_address_degree(
+            personal_info_id, address_degree)
+        confim_application(personal_info.email, personal_info.firstname)
+        return {"message": "submitted succesfully"}
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
 
 
 @app.put("/post/{target_id}")
