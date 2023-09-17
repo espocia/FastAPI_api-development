@@ -17,8 +17,7 @@ post_manager = PostManager()
 app.add_middleware(
     CORSMiddleware,
     # Specify the origin(s) you want to allow
-    allow_origins=["https://dulcet-melba-efe48a.netlify.app",
-                   "http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],  # You can specify the allowed HTTP methods
     allow_headers=["*"],  # You can specify the allowed headers
