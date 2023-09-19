@@ -13,7 +13,7 @@ from starlette.datastructures import Address
 
 # Local files imports --------------------
 from app.basemodel import Post
-from app.basemodel import AddressDegree, PersonalInfo, Status
+from app.basemodel import AddressDegree, PersonalInfo, Status, File
 
 load_dotenv()
 
@@ -35,6 +35,14 @@ db_credentials = DatabaseCredentials(
     db_password=os.getenv("DB_PASSWORD")
 )
 
+create_file_table_sql = """
+CREATE TABLE IF NOT EXISTS files (
+    id serial PRIMARY KEY,
+    name VARCHAR(255),
+    size INT,
+    type VARCHAR(255)
+);
+"""
 create_status_table_sql = """
 CREATE TABLE IF NOT EXISTS statuses (
     id serial PRIMARY KEY,
@@ -47,6 +55,7 @@ create_personal_info_table_sql = """
 CREATE TABLE IF NOT EXISTS personal_info (
     id serial PRIMARY KEY,
     status_id INT REFERENCES statuses(id),  -- Reference to the status associated with this personal_info
+    file_id INT REFERENCES files(id),
     firstname VARCHAR(255),
     lastname VARCHAR(255),
     gender VARCHAR(255),
@@ -82,6 +91,7 @@ while True:
         print('Database connection was successfully')
 
         if cursor:
+            cursor.execute(create_file_table_sql)
             cursor.execute(create_status_table_sql)
             cursor.execute(create_personal_info_table_sql)
             cursor.execute(create_address_degree_table_sql)
@@ -103,7 +113,7 @@ class PostManager:
 
     def create_post(self, post: Post):
         """ Creates new entries for the database """
-        sql = """INSERT INTO posts (title, content, published) VALUES (%s,%s,%s) RETURNING *"""
+        sql = """INSERT INTO posts (title, content, published) VALUES (%s, %s ,%s) RETURNING *"""
         try:
             self.cursor.execute(
                 sql, (post.title, post.content, post.published))
@@ -113,10 +123,22 @@ class PostManager:
         except Exception as error:
             raise error
 
-    def create_post_personal_info(self, status_id, post: PersonalInfo):
+    def create_post_file(self, file: File):
+        sql = """INSERT INTO files (name, size, type) VALUES (%s, %s, %s) RETURNING *"""
+
+        try:
+            self.cursor.execute(sql, (file.name, file.size, file.type))
+            new_file = self.cursor.fetchone()['id']
+            self.connection.commit()
+            return new_file
+        except Exception as error:
+            raise error
+
+    def create_post_personal_info(self, status_id, file_id, post: PersonalInfo):
         """ Creates new entries for personal_info table"""
         sql = """INSERT INTO personal_info (
                     status_id,
+                    file_id,
                     firstname,
                     lastname,
                     gender,
@@ -124,10 +146,10 @@ class PostManager:
                     phone,
                     email
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id"""  # Changed RETURNING clause
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id"""  # Changed RETURNING clause
         try:
             self.cursor.execute(
-                sql, (status_id, post.firstname, post.lastname, post.gender, post.birthdate, post.phone, post.email))
+                sql, (status_id, file_id, post.firstname, post.lastname, post.gender, post.birthdate, post.phone, post.email))
             # Changed how id is accessed
             new_personal_info_id = self.cursor.fetchone()['id']
             self.connection.commit()

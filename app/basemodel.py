@@ -27,3 +27,9 @@ class AddressDegree(BaseModel):
 
 class Status(BaseModel):
     status: str = "new"
+
+
+class File(BaseModel):
+    name: str
+    size: int
+    type: str

@@ -1,6 +1,6 @@
 #  Local files imports --------------------
 from app.database import PostManager
-from app.basemodel import AddressDegree, PersonalInfo,  Status
+from app.basemodel import AddressDegree, PersonalInfo,  Status, File
 
 # FastAPI import -------------------------
 from fastapi import FastAPI, HTTPException
@@ -51,14 +51,15 @@ async def get_post(target_id: int):
 
 
 @app.post("/post")
-async def create_post(personal_info: PersonalInfo, address_degree: AddressDegree, status: Status):
+async def create_post(personal_info: PersonalInfo, address_degree: AddressDegree, status: Status, file: File):
     """
     Create a new post
     """
     try:
+        file_id = post_manager.create_post_file(file)
         status_id = post_manager.create_post_status(status)
         personal_info_id = post_manager.create_post_personal_info(
-            status_id, personal_info)
+            status_id, file_id, personal_info)
         post_manager.create_post_address_degree(
             personal_info_id, address_degree)
         confim_application(personal_info.email, personal_info.firstname)
