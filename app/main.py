@@ -70,10 +70,11 @@ async def download_file(file_name: str):
     try:
         # Download file from S3 bucket to the server's local filesystem
         # Provide the local path where you want to save the file
+        object_key = AWS_DIR + file_name
         local_file_path = f"/tmp/{file_name}"  # Use a temporary directory
         s3.download_file(
             AWS_BUCKET_NAME,
-            file_name,
+            object_key,
             local_file_path
         )
 
