@@ -229,7 +229,9 @@ class PostManager:
                 INNER JOIN
                     personal_info AS pi ON s.id = pi.status_id
                 INNER JOIN
-                    address_degree AS ad ON pi.id = ad.personal_info_id;
+                    address_degree AS ad ON pi.id = ad.personal_info_id
+                ORDER BY
+                    s.id;
         """
         try:
             self.cursor.execute(sql)
