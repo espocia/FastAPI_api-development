@@ -27,6 +27,7 @@ class AddressDegree(BaseModel):
 
 class Status(BaseModel):
     status: str = "new"
+    job_title: str
 
 
 class File(BaseModel):

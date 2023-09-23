@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS files (
 create_status_table_sql = """
 CREATE TABLE IF NOT EXISTS statuses (
     id serial PRIMARY KEY,
-    status VARCHAR(255) NOT NULL DEFAULT 'new'
+    status VARCHAR(255) NOT NULL DEFAULT 'new',
+    job_title VARCHAR(255)
 );
 """
 
@@ -178,10 +179,10 @@ class PostManager:
 
     def create_post_status(self, post: Status):
         """ Creates new entries for status"""
-        sql = """INSERT INTO statuses (status) VALUES (%s) RETURNING id"""  # Changed RETURNING clause
+        sql = """INSERT INTO statuses (status, job_title) VALUES (%s, %s) RETURNING id"""  # Changed RETURNING clause
 
         try:
-            self.cursor.execute(sql, (post.status,))
+            self.cursor.execute(sql, (post.status, post.job_title))
             self.connection.commit()
             row = self.cursor.fetchone()
             if row:
