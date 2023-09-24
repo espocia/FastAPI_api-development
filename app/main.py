@@ -42,7 +42,7 @@ s3 = boto3.client(
 )
 
 
-@app.get("/")
+@app.get("/", tags=["root"])
 async def root():
     """
     Welcome endpoint
@@ -50,7 +50,7 @@ async def root():
     return {"message": "Welcome to my API"}
 
 
-@app.post("/uploadfile/")
+@app.post("/uploadfile/", tags=["admin", "file"])
 async def upload_file(file: UploadFile):
     try:
         # Upload file to S3 bucket
@@ -65,7 +65,7 @@ async def upload_file(file: UploadFile):
         return JSONResponse(content={"error": "AWS credentials not found"}, status_code=500)
 
 
-@app.get("/downloadfile/{file_name}")
+@app.get("/downloadfile/{file_name}", tags=["admin", "file"])
 async def download_file(file_name: str):
     try:
         # Download file from S3 bucket to the server's local filesystem
@@ -89,7 +89,7 @@ async def download_file(file_name: str):
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
-@app.get("/posts")
+@app.get("/posts", tags=["admin"])
 async def get_posts():
     """
     Get all posts
@@ -97,7 +97,7 @@ async def get_posts():
     return {"data": post_manager.get_all_posts()}
 
 
-@app.get("/post/{target_id}")
+@app.get("/post/{target_id}",  tags=["admin"])
 async def get_post(target_id: int):
     """
     Get a specific post by ID
@@ -105,7 +105,7 @@ async def get_post(target_id: int):
     return {"data": post_manager.get_post(target_id)}
 
 
-@app.post("/post")
+@app.post("/post", tags=["applicant"])
 async def create_post(personal_info: PersonalInfo, address_degree: AddressDegree, status: Status, file: File):
     """
     Create a new post
@@ -123,7 +123,7 @@ async def create_post(personal_info: PersonalInfo, address_degree: AddressDegree
         return HTTPException(status_code=500, detail=str(e))
 
 
-@app.put("/post/{target_id}")
+@app.put("/post/{target_id}", tags=["admin"])
 async def update_post(target_id: int, status: Status):
     """
     Update existing post
@@ -131,7 +131,7 @@ async def update_post(target_id: int, status: Status):
     return {"data": post_manager.update_status(target_id, status)}
 
 
-@app.delete("/post/{target_id}")
+@app.delete("/post/{target_id}", tags=["admin"])
 async def delete_post(target_id: int):
     """
     Delete a post by ID
